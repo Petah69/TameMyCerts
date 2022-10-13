@@ -15,11 +15,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Security.Principal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TameMyCerts;
+using TameMyCerts.Models;
+using TameMyCerts.Validators;
 
-namespace UnitTests
+namespace TameMyCerts.Tests
 {
     [TestClass]
     public class DirectoryServicesValidatorTests
@@ -34,7 +36,7 @@ namespace UnitTests
         public DirectoryServicesValidatorTests()
         {
             _dsObject = new ActiveDirectoryObject(
-                "rudi@intra.adcslabor.de",
+                "rudi",
                 0,
                 new List<string> {"CN=PKI_UserCert,OU=ADCSLabor Gruppen,DC=intra,DC=adcslabor,DC=de"},
                 new Dictionary<string, string>
@@ -78,7 +80,7 @@ namespace UnitTests
             };
         }
 
-        public void PrintResult(CertificateRequestValidationResult validationResult)
+        internal void PrintResult(CertificateRequestValidationResult validationResult)
         {
             Console.WriteLine("0x{0:X} ({0}) {1}.", validationResult.StatusCode,
                 new Win32Exception(validationResult.StatusCode).Message);
@@ -162,7 +164,7 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void Allow_and_add_directory_attribute()
+        public void Allow_and_add_one_directory_attribute()
         {
             var result = _validationResult;
             result = _directoryServicesValidator.VerifyRequest(_requestPolicy, result, _dsObject);
@@ -170,8 +172,34 @@ namespace UnitTests
             PrintResult(result);
 
             Assert.IsFalse(result.DeniedForIssuance);
-            Assert.IsTrue(result.Properties.ContainsKey("Subject.CommonName") &&
-                          result.Properties["Subject.CommonName"].Equals("rudi@intra.adcslabor.de"));
+            Assert.IsTrue(result.Properties
+                .Where(x => x.Key.Equals("Subject.CommonName")).Any(x => x.Value.Equals("rudi@intra.adcslabor.de"))
+            );
+        }
+
+        [TestMethod]
+        public void Allow_and_add_multiple_directory_attributes()
+        {
+            var result = _validationResult;
+            var requestPolicy = _requestPolicy;
+            var commonName = new RelativeDistinguishedName
+            {
+                Field = "commonName",
+                DirectoryServicesAttribute = "userPrincipalName",
+                Mandatory = true
+            };
+
+            requestPolicy.DirectoryServicesMapping.SubjectDistinguishedName.Add(commonName);
+            requestPolicy.DirectoryServicesMapping.SubjectDistinguishedName.Add(commonName);
+
+            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, _dsObject);
+
+            PrintResult(result);
+
+            Assert.IsFalse(result.DeniedForIssuance);
+            Assert.IsTrue(result.Properties.Where(x => x.Key.Equals("Subject.CommonName"))
+                    .Count(x => x.Value.Equals("rudi@intra.adcslabor.de")) == 3
+            );
         }
 
         [TestMethod]
@@ -278,7 +306,7 @@ namespace UnitTests
             PrintResult(result);
 
             Assert.IsFalse(result.DeniedForIssuance);
-            Assert.IsFalse(result.Properties.ContainsKey("Subject.Country"));
+            Assert.IsFalse(result.Properties.Any(x => x.Key.Equals("Subject.Country")));
         }
 
         [TestMethod]

@@ -17,9 +17,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TameMyCerts;
+using TameMyCerts.Models;
+using TameMyCerts.Validators;
 
-namespace UnitTests
+namespace TameMyCerts.Tests
 {
     // TODO: Test correct building of NotBefore Date (correct input, false input), when the feature is implemented
     // TODO: Subject DN with special chars that require escaping
@@ -215,7 +216,7 @@ namespace UnitTests
             };
         }
 
-        public void PrintResult(CertificateRequestValidationResult validationResult)
+        internal void PrintResult(CertificateRequestValidationResult validationResult)
         {
             Console.WriteLine("0x{0:X} ({0}) {1}.", validationResult.StatusCode,
                 new Win32Exception(validationResult.StatusCode).Message);
