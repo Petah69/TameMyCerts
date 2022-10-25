@@ -16,7 +16,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 
@@ -33,6 +35,9 @@ namespace TameMyCerts.Tests
         private readonly CertificateRequestValidator _requestValidator = new CertificateRequestValidator();
         private readonly string _standardCsr;
         private readonly CertificateTemplateInfo.Template _templateInfo;
+
+        private readonly CertificateRequestValidationResult
+            _validationResult = new CertificateRequestValidationResult();
 
         public CertificateRequestValidatorTests()
         {
@@ -214,6 +219,9 @@ namespace TameMyCerts.Tests
                     }
                 }
             };
+
+            _validationResult.NotBefore = DateTimeOffset.Now;
+            _validationResult.NotAfter = DateTimeOffset.Now.AddYears(1);
         }
 
         internal void PrintResult(CertificateRequestValidationResult validationResult)
@@ -228,7 +236,8 @@ namespace TameMyCerts.Tests
         {
             const string request = "This is not a certificate request";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -238,7 +247,8 @@ namespace TameMyCerts.Tests
         [TestMethod]
         public void Allow_commonName_valid()
         {
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -273,7 +283,8 @@ namespace TameMyCerts.Tests
                 "P7MNEhROVnD5RdVp793twbYgnyLW4+UIbaKYX+t5\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -300,7 +311,8 @@ namespace TameMyCerts.Tests
                 "zEjZoYSctNw=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -313,7 +325,8 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.KeyAlgorithm = "ECC";
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -343,7 +356,8 @@ namespace TameMyCerts.Tests
                 "JMXiY0xmEBg=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -410,7 +424,8 @@ namespace TameMyCerts.Tests
                 "zt7jEmioXNz+JZOwmQ3Z0l+5cqwOrxSuSWmzun0=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -442,7 +457,8 @@ namespace TameMyCerts.Tests
             requestPolicy.KeyAlgorithm = "ECC";
             requestPolicy.MinimumKeyLength = 256;
 
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -479,7 +495,8 @@ namespace TameMyCerts.Tests
                 "kbUQqV43\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -515,7 +532,8 @@ namespace TameMyCerts.Tests
                 "CpV76XuDMJqMk4VrPkh1rLljbGqKzuQzIuCVAPFBhsLCqnHByQ==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -555,7 +573,8 @@ namespace TameMyCerts.Tests
                 "sicnx80RxPqTLH3kpX+8egvRxSmXt9rX3adVaOnrXvvEzj7kQzA=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -591,7 +610,8 @@ namespace TameMyCerts.Tests
                 "zplTRSF8Tgfw0i/iblG5Ap4RhcD5wsvLYF1VeTsWKmt2hhNzyA==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -627,7 +647,8 @@ namespace TameMyCerts.Tests
                 "bgfsnA7boakcA8eeKvCSXfdRdHrRFhSECwFLp7yu/m90XE9FIOYIzBVZeQ==\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -668,7 +689,8 @@ namespace TameMyCerts.Tests
                 "C6bmuhV2Gm14AnY=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -714,7 +736,8 @@ namespace TameMyCerts.Tests
                 "gIECro4=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -756,7 +779,8 @@ namespace TameMyCerts.Tests
 
             var requestPolicy = _requestPolicy;
             requestPolicy.SupplementDnsNames = true;
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) && validationResult
@@ -798,7 +822,8 @@ namespace TameMyCerts.Tests
 
             var requestPolicy = _requestPolicy;
             requestPolicy.SupplementDnsNames = true;
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
@@ -840,11 +865,13 @@ namespace TameMyCerts.Tests
 
             var requestPolicy = _requestPolicy;
             requestPolicy.SupplementDnsNames = true;
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
-            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) && validationResult
-                .Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2].Equals("MBKHEAAAAAAAAAAAAAAAAAAAAAE="));
+            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
+                          validationResult.Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]
+                              .Equals("MBKHEAAAAAAAAAAAAAAAAAAAAAE="));
         }
 
         [TestMethod]
@@ -883,12 +910,13 @@ namespace TameMyCerts.Tests
 
             var requestPolicy = _requestPolicy;
             requestPolicy.SupplementDnsNames = true;
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
-            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) && validationResult
-                .Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]
-                .Equals("MCqCEHd3dy5hZGNzbGFib3IuZGWHBMCoAAGHEAAAAAAAAAAAAAAAAAAAAAE="));
+            Assert.IsTrue(validationResult.Extensions.ContainsKey(WinCrypt.szOID_SUBJECT_ALT_NAME2) &&
+                          validationResult.Extensions[WinCrypt.szOID_SUBJECT_ALT_NAME2]
+                              .Equals("MCqCEHd3dy5hZGNzbGFib3IuZGWHBMCoAAGHEAAAAAAAAAAAAAAAAAAAAAE="));
         }
 
         [TestMethod]
@@ -926,7 +954,8 @@ namespace TameMyCerts.Tests
 
             var requestPolicy = _requestPolicy;
             requestPolicy.SupplementDnsNames = true;
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -960,7 +989,8 @@ namespace TameMyCerts.Tests
                 "Qbc+EMH4FY4v2YSfjsI3Lwqc5D/VUjjiurH09jtUokXLJme98UiwpFbBu2JDi2T/\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -989,7 +1019,8 @@ namespace TameMyCerts.Tests
                 "UuB3ABtxKzki\n" +
                 "-----END CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1025,7 +1056,8 @@ namespace TameMyCerts.Tests
                 "iddTemRyEEPZ3Xk6Apfthttqzwc=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1060,7 +1092,8 @@ namespace TameMyCerts.Tests
                 "f482T7HTzF4MuKb/m+x7nUz1eMFHXTy7TFoaYRxv3V0=\n" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1073,7 +1106,8 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.AllowedProcesses.Add("powershell.exe");
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -1087,7 +1121,8 @@ namespace TameMyCerts.Tests
             requestPolicy.AuditOnly = true;
             requestPolicy.AllowedProcesses.Add("taskhostw.exe");
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1101,7 +1136,8 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.AllowedProcesses.Add("taskhostw.exe");
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1137,7 +1173,8 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.AllowedProcesses.Add("taskhostw.exe");
 
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1150,7 +1187,8 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.DisallowedProcesses.Add("powershell.exe");
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1163,11 +1201,11 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.AllowedCryptoProviders.Add("Microsoft Software Key Storage Provider");
 
-            var requestAttributes = new Dictionary<string, string>();
-            requestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
+            var validationResult = _validationResult;
+            validationResult.RequestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
 
-            var validationResult =
-                _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo, requestAttributes);
+            validationResult =
+                _requestValidator.VerifyRequest(validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
@@ -1180,11 +1218,11 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.AllowedCryptoProviders.Add("Microsoft Platform Crypto Provider");
 
-            var requestAttributes = new Dictionary<string, string>();
-            requestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
+            var validationResult = _validationResult;
+            validationResult.RequestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
 
-            var validationResult =
-                _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo, requestAttributes);
+            validationResult =
+                _requestValidator.VerifyRequest(validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1198,7 +1236,7 @@ namespace TameMyCerts.Tests
             requestPolicy.AllowedCryptoProviders.Add("Microsoft Platform Crypto Provider");
 
             var validationResult =
-                _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1211,11 +1249,11 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.DisallowedCryptoProviders.Add("Microsoft Software Key Storage Provider");
 
-            var requestAttributes = new Dictionary<string, string>();
-            requestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
+            var validationResult = _validationResult;
+            validationResult.RequestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
 
-            var validationResult =
-                _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo, requestAttributes);
+            validationResult =
+                _requestValidator.VerifyRequest(validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1242,7 +1280,8 @@ namespace TameMyCerts.Tests
                 }
             );
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1295,7 +1334,8 @@ namespace TameMyCerts.Tests
                 }
             );
 
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1345,7 +1385,8 @@ namespace TameMyCerts.Tests
                 }
             );
 
-            var validationResult = _requestValidator.VerifyRequest(request, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1388,11 +1429,128 @@ namespace TameMyCerts.Tests
                 "FruEf1rk3/tB/ywnVKL9KRsn" +
                 "-----END NEW CERTIFICATE REQUEST-----";
 
-            var validationResult = _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
-            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.NTE_FAIL));
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERTSRV_E_TEMPLATE_DENIED));
+        }
+
+        [TestMethod]
+        public void Allow_remove_sid_extension()
+        {
+            // 2048 Bit RSA Key
+            // CN=intranet.adcslabor.de
+            // sid=S-1-5-21-1381186052-4247692386-135928078-500
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----" +
+                "MIIEvjCCAyYCAQAwIDEeMBwGA1UEAxMVaW50cmFuZXQuYWRjc2xhYm9yLmRlMIIB" +
+                "ojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAtpktqmDWCzarYusWvZ/O0/AC" +
+                "i6hVnBR6tzUCeWcLA6qmznWSqdDym0yVndHRTCqYiZgvgfMBKRr9nTQPzLMM3k+5" +
+                "BfuEFTgCCvlmlRxSLuDenI4w3CIGLDkRxv/pAZO2VeIdYAsfGm79QV5/tU6UZ3ZN" +
+                "G4ix5bb7udfJOdBN576Q2qtte1BnMqzzwJB8fH8Jc/MOx75flx/e+2AmZbeIDtxD" +
+                "j2MDG+kQ3t+PFfws8LSAy5q/CHUVlkoSb0BT0U/X1UBcQQriSVqofK9JDB1Ok5XU" +
+                "QdsBKdZGyeChRUrS10iEgTWpawrfvt2MbObwhpHrV/WDdVmEif4t5PKWqgFahHZT" +
+                "tWt1r4JGMxRLHfAGnjOt2k14JpOpqMAgkHPLGPXJsmlD4un8enrx5QU156CwAHLg" +
+                "6ltkDi+sgkeWhMMok4fb21uzKouclacE2vR+l/F8LUP52AeBsQAmRucyJkXbM0QY" +
+                "eR9w9Cu2RT93s+DFPTtE1U3093StXhLY5GzsG2rdAgMBAAGgggFXMBwGCisGAQQB" +
+                "gjcNAgMxDhYMMTAuMC4xOTA0NC4yMD4GCSsGAQQBgjcVFDExMC8CAQUMCkxBUFRP" +
+                "UC1VV0UMDkxBUFRPUC1VV0VcdXdlDA5wb3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3" +
+                "DQICMVgwVgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBl" +
+                "ACAASwBlAHkAIABTAHQAbwByAGEAZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMIGO" +
+                "BgkqhkiG9w0BCQ4xgYAwfjAOBgNVHQ8BAf8EBAMCB4AwTQYJKwYBBAGCNxkCBEAw" +
+                "PqA8BgorBgEEAYI3GQIBoC4ELFMtMS01LTIxLTEzODExODYwNTItNDI0NzY5MjM4" +
+                "Ni0xMzU5MjgwNzgtNTAwMB0GA1UdDgQWBBRIW5wIKxgYQ54ZqtEnPJb1up2dHzAN" +
+                "BgkqhkiG9w0BAQsFAAOCAYEAV9BiaDSo495k4WccuFVRoXpxfl46NuZA7WBL/7F5" +
+                "smqmslc5pVnXWf6HLigoEJIKBmZ1ro4FvL73o9cX0sL4xx3b8DO0GSQ7DsB5fLy4" +
+                "Rm3pynkpIblbwDLcHfZGCsY1ZOOuBLXpDyBhqWv37iDKcErtRR/guoLEWScUAfWr" +
+                "LAAXuDkJF7pOAQNytUDGG+Gk6GILvGs1TiDYtFdM9K4A1uyjnhcU3fv3uLXC3mdZ" +
+                "S1PA/8sO7ItSJyf/CgDsJZnZ2/WNdAq05po0ELjmte3o/n+8avAXqot8XjC+Jm1n" +
+                "xieO9UfUwubES3b2S1GLpFdW20fsVsjhyI76nOPqDDRXhqksiIEMDi0S1QjQyUbR" +
+                "smdERk7+lImY1iOfJH3ZrG+cpEEMDZCNpvxSn9rgq8CbIR4v0K6SG4PlX4bUIpV7" +
+                "giA5RXlS0BWKeT4g+7p35hAqf/NFAJ3HP0tIkY7TBKOB4nhRUixaJPUFTvnZZCT6" +
+                "FruEf1rk3/tB/ywnVKL9KRsn" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+            var requestPolicy = _requestPolicy;
+            requestPolicy.SecurityIdentifierExtension = "Remove";
+
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, request);
+            PrintResult(validationResult);
+
+            Assert.IsFalse(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.DisabledExtensions.Contains(WinCrypt.szOID_DS_CA_SECURITY_EXT));
+        }
+
+        [TestMethod]
+        public void Deny_all_known_RDN_types_identified()
+        {
+            // 3072 Bit RSA Key
+            // CN=test,C=DE,E=test@test.com,DC=test,L=test,O=test,OU=test,S=test,G=test,I=test,SN=test,STREET=test,T=test,OID.1.2.840.113549.1.9.2=test,OID.1.2.840.113549.1.9.8=test,OID.2.5.4.5=test,POSTALCODE=12345,POBOX=test,PHONE=123,DESCRIPTION=test
+            const string request =
+                "-----BEGIN NEW CERTIFICATE REQUEST-----\n" +
+                "MIIFpzCCBA8CAQAwggFMMQ0wCwYDVQQNEwR0ZXN0MQwwCgYDVQQUEwMxMjMxDTAL\n" +
+                "BgNVBBITBHRlc3QxDjAMBgNVBBETBTEyMzQ1MQ0wCwYDVQQFEwR0ZXN0MRMwEQYJ\n" +
+                "KoZIhvcNAQkIEwR0ZXN0MRMwEQYJKoZIhvcNAQkCEwR0ZXN0MQ0wCwYDVQQMEwR0\n" +
+                "ZXN0MQ0wCwYDVQQJEwR0ZXN0MQ0wCwYDVQQEEwR0ZXN0MQ0wCwYDVQQrEwR0ZXN0\n" +
+                "MQ0wCwYDVQQqEwR0ZXN0MQ0wCwYDVQQIEwR0ZXN0MQ0wCwYDVQQLEwR0ZXN0MQ0w\n" +
+                "CwYDVQQKEwR0ZXN0MQ0wCwYDVQQHEwR0ZXN0MRQwEgYKCZImiZPyLGQBGRYEdGVz\n" +
+                "dDEcMBoGCSqGSIb3DQEJARYNdGVzdEB0ZXN0LmNvbTELMAkGA1UEBhMCREUxDTAL\n" +
+                "BgNVBAMTBHRlc3QwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQCznyT5\n" +
+                "62aKa8JKqT3kujFMp3VP/Vp3cyXPbzKU9XORgC4e8zq1px0JQzvrPFbCxI+D1g+T\n" +
+                "MFl81PNtcRv+sXB132UIE7WJTVQI9G7rFgrybnAAqqlX/ex3YRuGcf/Cbzr7T5XT\n" +
+                "ZNQxHj1Ro3X2Uf+A7sHwby+/o3rZi+iWJ9ydpMOjIZVnRNF+9BBxRxHsTRyT13bM\n" +
+                "9xT5D7PRu5cPcSryagKEyxlkCQInyTVcDPElk9Yh+u+lfZW8HMUfvwutLTWmBesb\n" +
+                "BAl88u8MG6N/X3HPLdOTuymOF6D7N9gZDX/CSBCR6ivBfK24t2hsThM0pMelxbun\n" +
+                "9R0bKJ8/giKylPsDGrhySMMa9qzwg7BtMf3U50a7ifIO0QuwqG1tqpVapZ34qHyO\n" +
+                "BjmSC/gmRzXLnrBBfHZ1T2M0cTzFNUW2Z5DEZhE1I2Wi31c9W/TCgaVmTeiJPL6b\n" +
+                "5uiMAhijf4waHgo+jUYmSvGCG+6TimOhGbR04C3ydBFXiCpvJKj+V+sFuX0CAwEA\n" +
+                "AaCCARIwHAYKKwYBBAGCNw0CAzEOFgwxMC4wLjE4MzYzLjIwPgYJKoZIhvcNAQkO\n" +
+                "MTEwLzAOBgNVHQ8BAf8EBAMCB4AwHQYDVR0OBBYEFO1m2UMNDRr23DSRF2iJaa5O\n" +
+                "cO9kMEoGCSsGAQQBgjcVFDE9MDsCAQUMGkNMSUVOVDIuaW50cmEuYWRjc2xhYm9y\n" +
+                "LmRlDApJTlRSQVxydWRpDA5wb3dlcnNoZWxsLmV4ZTBmBgorBgEEAYI3DQICMVgw\n" +
+                "VgIBAB5OAE0AaQBjAHIAbwBzAG8AZgB0ACAAUwBvAGYAdAB3AGEAcgBlACAASwBl\n" +
+                "AHkAIABTAHQAbwByAGEAZwBlACAAUAByAG8AdgBpAGQAZQByAwEAMA0GCSqGSIb3\n" +
+                "DQEBCwUAA4IBgQBug1vfhNh5hhBkumqHCpEVe11Ll0UWTn2FLKM5UgkerLEOKwvq\n" +
+                "R0LtoNHCdJJ5Xfw90eErgMr31cdks8HVlUyW13zYTJ3HPSrq/nxq7RNl6cf/utJy\n" +
+                "G2XXpq/C2JKRhls07YLyTZrlrTTvA9aZha8ODD9M0OAMpCu4JmSebxXibyxAwnEo\n" +
+                "aWnR4RlovJDe3nYZCjQqsXIJ5gbcFQJ0Vz7ObGUt2yFqAcCjHHiVeF3B4CjrdxIw\n" +
+                "BQ37J2ktvD2hLeQ0cDxkMfu8oy5Hah0RTNamPy03rNZlVBjDieTRRhOsWcRKSJ0H\n" +
+                "/s37wIGLrMN+2dooXpN+ZO01M0synAPDKLZC8PSyacIJ9+tolj3axSQy1XTscspi\n" +
+                "oX5VoFliBOLo32PN1+RU4qdxx331C3sPQTI/sNobq58tqh94rTHvzpa34RrkG5JN\n" +
+                "TTFXhCzpku8oCQeCAwYgo5NE8Uqt6EIJat1tlC2RVznjX/5rB2Qh7jo1+DiXaOEU\n" +
+                "4FGWrTPcqLQL+SQ=\n" +
+                "-----END NEW CERTIFICATE REQUEST-----";
+
+
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request);
+            PrintResult(validationResult);
+
+            Assert.IsTrue(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("commonName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("countryName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("emailAddress")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("domainComponent")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("localityName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("organizationName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("organizationalUnitName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("stateOrProvinceName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("givenName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("initials")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("surname")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("streetAddress")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("title")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("unstructuredName")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("unstructuredAddress")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("serialNumber")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("postalCode")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("postOfficeBox")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("telephoneNumber")));
+            Assert.IsTrue(validationResult.Identities.Any(x => x.Key.Equals("description")));
         }
 
         [TestMethod]
@@ -1478,7 +1636,8 @@ namespace TameMyCerts.Tests
                 "-----END PKCS #7 SIGNED DATA-----";
 
             var validationResult =
-                _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo, CertCli.CR_IN_PKCS7);
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request,
+                    CertCli.CR_IN_PKCS7);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1529,7 +1688,8 @@ namespace TameMyCerts.Tests
                 "-----END NEW CERTIFICATE REQUEST-----";
 
             var validationResult =
-                _requestValidator.VerifyRequest(request, _requestPolicy, _templateInfo, CertCli.CR_IN_CMC);
+                _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request,
+                    CertCli.CR_IN_CMC);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
@@ -1543,14 +1703,17 @@ namespace TameMyCerts.Tests
             var notAfter = "2100-12-31T23:59:59.0000000+01:00";
             requestPolicy.NotAfter = notAfter;
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsFalse(validationResult.DeniedForIssuance);
             Assert.IsTrue(validationResult.StatusCode.Equals(WinError.ERROR_SUCCESS));
+
+
             Assert.IsTrue(validationResult.NotAfter.Equals(DateTimeOffset.ParseExact(notAfter, "o",
                 CultureInfo.InvariantCulture.DateTimeFormat,
-                DateTimeStyles.AssumeUniversal)));
+                DateTimeStyles.AssumeUniversal)) || validationResult.NotAfter == _validationResult.NotAfter);
         }
 
         [TestMethod]
@@ -1559,7 +1722,8 @@ namespace TameMyCerts.Tests
             var requestPolicy = _requestPolicy;
             requestPolicy.NotAfter = "ThisIsNotAValidDateTime";
 
-            var validationResult = _requestValidator.VerifyRequest(_standardCsr, requestPolicy, _templateInfo);
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);

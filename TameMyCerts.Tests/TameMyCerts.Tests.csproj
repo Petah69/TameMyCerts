@@ -50,9 +50,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryServicesValidatorTests.cs" />
+    <Compile Include="DirectoryServiceValidatorTests.cs" />
     <Compile Include="CertificateRequestValidatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestAttributeValidatorTests.cs" />
     <Compile Include="SidCertificateExtensionTests.cs" />
   </ItemGroup>
   <ItemGroup>

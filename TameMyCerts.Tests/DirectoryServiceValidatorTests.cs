@@ -18,22 +18,23 @@ using System.ComponentModel;
 using System.Linq;
 using System.Security.Principal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 
 namespace TameMyCerts.Tests
 {
     [TestClass]
-    public class DirectoryServicesValidatorTests
+    public class DirectoryServiceValidatorTests
     {
-        private readonly DirectoryServicesValidator _directoryServicesValidator = new DirectoryServicesValidator(true);
+        private readonly DirectoryServiceValidator _directoryServicesValidator = new DirectoryServiceValidator(true);
         private readonly ActiveDirectoryObject _dsObject;
         private readonly CertificateRequestPolicy _requestPolicy;
 
         private readonly CertificateRequestValidationResult
             _validationResult = new CertificateRequestValidationResult();
 
-        public DirectoryServicesValidatorTests()
+        public DirectoryServiceValidatorTests()
         {
             _dsObject = new ActiveDirectoryObject(
                 "rudi",
@@ -88,7 +89,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Allow_disabled_account_when_set()
+        public void Allow_disabled_account_when_configured()
         {
             var requestPolicy = _requestPolicy;
             var result = _validationResult;
@@ -97,7 +98,7 @@ namespace TameMyCerts.Tests
             dsObject.UserAccountControl = UserAccountControl.ACCOUNTDISABLE;
             requestPolicy.DirectoryServicesMapping.PermitDisabledAccounts = true;
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -112,7 +113,7 @@ namespace TameMyCerts.Tests
 
             dsObject.UserAccountControl = UserAccountControl.ACCOUNTDISABLE;
 
-            result = _directoryServicesValidator.VerifyRequest(_requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, _requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -124,7 +125,7 @@ namespace TameMyCerts.Tests
         {
             var result = _validationResult;
 
-            result = _directoryServicesValidator.VerifyRequest(_requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, _requestPolicy, _dsObject);
 
             PrintResult(result);
 
@@ -139,7 +140,7 @@ namespace TameMyCerts.Tests
 
             dsObject.MemberOf.Clear();
 
-            result = _directoryServicesValidator.VerifyRequest(_requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, _requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -156,7 +157,7 @@ namespace TameMyCerts.Tests
             dsObject.MemberOf.Add("test");
             requestPolicy.DirectoryServicesMapping.DisallowedSecurityGroups.Add("test");
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -164,10 +165,10 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Allow_and_add_one_directory_attribute()
+        public void Allow_and_add_one_RDN()
         {
             var result = _validationResult;
-            result = _directoryServicesValidator.VerifyRequest(_requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, _requestPolicy, _dsObject);
 
             PrintResult(result);
 
@@ -178,7 +179,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Allow_and_add_multiple_directory_attributes()
+        public void Allow_and_add_multiple_RDN()
         {
             var result = _validationResult;
             var requestPolicy = _requestPolicy;
@@ -189,10 +190,11 @@ namespace TameMyCerts.Tests
                 Mandatory = true
             };
 
+            // add two more of the same, so we have 3
             requestPolicy.DirectoryServicesMapping.SubjectDistinguishedName.Add(commonName);
             requestPolicy.DirectoryServicesMapping.SubjectDistinguishedName.Add(commonName);
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, _dsObject);
 
             PrintResult(result);
 
@@ -203,7 +205,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Deny_if_unable_to_add_nonpresent_mandatory_attribute()
+        public void Deny_if_unable_to_add_nonpresent_mandatory_DS_attribute()
         {
             var requestPolicy = _requestPolicy;
             var result = _validationResult;
@@ -215,7 +217,7 @@ namespace TameMyCerts.Tests
                 Mandatory = true
             });
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, _dsObject);
 
             PrintResult(result);
 
@@ -223,7 +225,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Deny_if_attribute_too_long()
+        public void Deny_if_mandatory_DS_attribute_too_long()
         {
             var requestPolicy = _requestPolicy;
             var result = _validationResult;
@@ -238,7 +240,7 @@ namespace TameMyCerts.Tests
 
             dsObject.Attributes["c"] = "test";
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -246,7 +248,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Deny_if_attribute_unknown()
+        public void Deny_if_mandatory_DS_attribute_unknown()
         {
             var requestPolicy = _requestPolicy;
             var result = _validationResult;
@@ -259,7 +261,7 @@ namespace TameMyCerts.Tests
                 Mandatory = true
             });
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -267,7 +269,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Allow_but_dont_add_if_attribute_unknown()
+        public void Allow_but_dont_add_RDN_if_DS_attribute_unknown()
         {
             var requestPolicy = _requestPolicy;
             var result = _validationResult;
@@ -279,7 +281,7 @@ namespace TameMyCerts.Tests
                 DirectoryServicesAttribute = "c"
             });
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -287,7 +289,7 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
-        public void Allow_but_dont_add_if_attribute_too_long()
+        public void Allow_but_dont_add_RDN_if_DS_attribute_too_long()
         {
             var requestPolicy = _requestPolicy;
             var result = _validationResult;
@@ -301,7 +303,7 @@ namespace TameMyCerts.Tests
 
             dsObject.Attributes["c"] = "test";
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, dsObject);
 
             PrintResult(result);
 
@@ -316,7 +318,7 @@ namespace TameMyCerts.Tests
                 "MD+gPQYKKwYBBAGCNxkCAaAvBC1TLTEtNS0yMS0xMzgxMTg2MDUyLTQyNDc2OTIzODYtMTM1OTI4MDc4LTEyMjU=";
 
             var result = _validationResult;
-            result = _directoryServicesValidator.VerifyRequest(_requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, _requestPolicy, _dsObject);
 
             PrintResult(result);
 
@@ -333,7 +335,7 @@ namespace TameMyCerts.Tests
 
             requestPolicy.SecurityIdentifierExtension = "Allow";
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, _dsObject);
 
             PrintResult(result);
 
@@ -349,7 +351,7 @@ namespace TameMyCerts.Tests
 
             requestPolicy.SecurityIdentifierExtension = "Deny";
 
-            result = _directoryServicesValidator.VerifyRequest(requestPolicy, result, _dsObject);
+            result = _directoryServicesValidator.VerifyRequest(result, requestPolicy, _dsObject);
 
             PrintResult(result);
 
