@@ -27,6 +27,10 @@ namespace TameMyCerts.Tests
     // TODO: Test correct building of NotBefore Date (correct input, false input), when the feature is implemented
     // TODO: Subject DN with special chars that require escaping
     // TODO: Test the CertificateRequestPolicy Class against invalid and valid data
+    /* TODO: Unit test for validating IPv6 CIDR masks
+     * I assume policy validation will be broken because IPv6 is 128-Bit whereas calculations are done with 32-Bit integers
+     * See also this discussion: https://stackoverflow.com/questions/17030926/ipaddress-hosttonetworkorder-with-ipv6
+     * */
 
     [TestClass]
     public class CertificateRequestValidatorTests
