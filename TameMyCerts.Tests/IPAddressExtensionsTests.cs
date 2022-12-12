@@ -21,6 +21,15 @@ namespace TameMyCerts.Tests
     [TestClass]
     public class IPAddressExtensionsTests
     {
+        // TODO: unsure as IPAddress.Parse also throws FormatException
+        [TestMethod]
+        public void Invalid_data_is_no_match()
+        {
+            Assert.IsFalse(IPAddress.Parse("10.0.0.1").IsInRange("10.0.0.0/test"));
+            Assert.IsFalse(IPAddress.Parse("10.0.0.1").IsInRange("test"));
+            Assert.IsFalse(IPAddress.Parse("10.0.0.1").IsInRange("test/0"));
+        }
+
         [TestMethod]
         public void IP_is_in_subnet_class_a()
         {
@@ -64,6 +73,16 @@ namespace TameMyCerts.Tests
             Assert.IsTrue(IPAddress.Parse("10.0.0.1").IsInRange("0.0.0.0/0"));
             Assert.IsTrue(IPAddress.Parse("172.16.0.1").IsInRange("0.0.0.0/0"));
             Assert.IsTrue(IPAddress.Parse("192.168.0.1").IsInRange("0.0.0.0/0"));
+            Assert.IsTrue(IPAddress.Parse("255.255.255.255").IsInRange("0.0.0.0/0"));
+        }
+
+        [TestMethod]
+        public void IP_is_in_subnet_none()
+        {
+            Assert.IsTrue(IPAddress.Parse("0.0.0.0").IsInRange("0.0.0.0/32"));
+            Assert.IsFalse(IPAddress.Parse("10.0.0.1").IsInRange("0.0.0.0/32"));
+            Assert.IsFalse(IPAddress.Parse("172.16.0.1").IsInRange("0.0.0.0/32"));
+            Assert.IsFalse(IPAddress.Parse("192.168.0.1").IsInRange("0.0.0.0/32"));
             Assert.IsFalse(IPAddress.Parse("255.255.255.255").IsInRange("0.0.0.0/32"));
         }
     }
