@@ -1,6 +1,6 @@
 $TestStartTime = Get-Date
 
-Import-Module -Name PSCertificateEnrollment -MinimumVersion "1.0.6"
+Import-Module -Name PSCertificateEnrollment -MinimumVersion "1.0.7" -ErrorAction Stop
 
 $CaName = "TEST-CA"
 $DomainName = "tamemycerts-tests.local"
@@ -25,4 +25,9 @@ New-Variable -Option Constant -Name CertCli -Value @{
     CR_DISP_ISSUED_OUT_OF_BAND = 4
     CR_DISP_UNDER_SUBMISSION = 5
     CR_DISP_REVOKED = 6
+}
+
+New-Variable -Option Constant -Name EditFlag -Value @{
+    EDITF_ATTRIBUTEENDDATE = 0x20
+    EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x40000
 }

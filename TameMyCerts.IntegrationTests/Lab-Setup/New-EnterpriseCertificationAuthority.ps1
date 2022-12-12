@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Deploys the Enterprice certification authority we will run our integration tests against.
+    Deploys the Enterprise certification authority we will run our integration tests against.
 #>
 
 [CmdletBinding()]
@@ -54,7 +54,7 @@ $CaDeploymentParameters = @{
     CAType = "EnterpriseRootCA"
     KeyLength = 4096
     ValidityPeriod = "Years"
-    ValidityPeriodUnits = 20
+    ValidityPeriodUnits = 50
 }
 
 Install-WindowsFeature -Name Adcs-Cert-Authority -IncludeManagementTools
@@ -62,6 +62,7 @@ Install-WindowsFeature -Name Adcs-Cert-Authority -IncludeManagementTools
 Install-AdcsCertificationAuthority @CaDeploymentParameters
 
 [void](& certutil -setreg CA\LogLevel 4)
+[void](& certutil -setreg CA\ValidityPeriodUnits 50)
 [void](& certutil -setreg Policy\EditFlags +EDITF_ATTRIBUTEENDDATE)
 
 # Though this is insecure, we enable the flag in the lab to test the logic inside TameMyCerts

@@ -11,7 +11,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.adcslabor\.de)$</Expression>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
         </Pattern>
         <Pattern>
           <Expression>192.168.0.0/24</Expression>
@@ -84,7 +84,7 @@
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>
-          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.adcslabor\.de)$</Expression>
+          <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
         </Pattern>
         <Pattern>
           <Expression>^.*(porn|gambling).*$</Expression>

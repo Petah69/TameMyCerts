@@ -8,7 +8,7 @@ Describe 'GenericWebServer_emptyPolicy.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued (RDN type not defined)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -KeyLength 2048
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -KeyLength 2048
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_emptyPolicy"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
