@@ -8,7 +8,7 @@ $ConfigString = "$($env:ComputerName).$DomainName\$CaName"
 
 New-Variable -Option Constant -Name WinError -Value @{
     ERROR_SUCCESS = "0x0"
-    ERROR_INVALID_TIME = "0x00001901"
+    ERROR_INVALID_TIME = "0x8007076d"
     NTE_FAIL = "0x80090020"
     CERTSRV_E_TEMPLATE_DENIED = "0x80094012"
     CERTSRV_E_BAD_REQUESTSUBJECT = "0x80094001"

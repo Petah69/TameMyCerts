@@ -185,4 +185,38 @@ Describe 'GenericWebServer.Tests' {
 
         $Result.Certificate.NotBefore | Should -Be (Get-Date -Date "$NextYear-01-01 00:00:00Z")
     }
+
+        It 'Given no policy is defined, flag is enabled, and StartDate extension is invalid, no certificate is issued' {
+
+        $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
+        $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
+
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString `
+            -RequestAttributes "CertificateTemplate:GenericWebServer","StartDate:Mon, 1 Dec 2022 00:00:00 GMT"
+
+        $EditFlags -band $EditFlag.EDITF_ATTRIBUTEENDDATE | Should -Be $EditFlag.EDITF_ATTRIBUTEENDDATE
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
+        $Result.StatusCode | Should -Be $WinError.ERROR_INVALID_TIME
+    }
+
+    It 'Given a denied request due to invalid StartDate is resubmitted by an administrator, a certificate is issued' {
+
+        $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
+        $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
+
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
+        $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString `
+            -RequestAttributes "CertificateTemplate:GenericWebServer","StartDate:Mon, 1 Dec 2022 00:00:00 GMT"
+
+        (& certutil -config $ConfigString -resubmit $Result1.RequestId)
+
+        $Result2 = Get-IssuedCertificate -ConfigString $ConfigString -RequestId $Result1.RequestId
+
+        $EditFlags -band $EditFlag.EDITF_ATTRIBUTEENDDATE | Should -Be $EditFlag.EDITF_ATTRIBUTEENDDATE
+        $Result1.Disposition | Should -Be $CertCli.CR_DISP_DENIED
+        $Result1.StatusCode | Should -Be $WinError.ERROR_INVALID_TIME
+        $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result2.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+    }
 }

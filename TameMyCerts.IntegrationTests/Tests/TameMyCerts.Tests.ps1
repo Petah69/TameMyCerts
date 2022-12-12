@@ -34,7 +34,6 @@ Certificate content doesnt get modified when Audit mode is enabled
 Certificate content gets modified when Audit mode is not enabled
 Certificate content gets modified for a resubmitted request
 Invalid start/end dates are not relevant when a denied request is resubmitted by an administrator
-StartDate is applied (if flag is set) whether a policy exists for the given template or not
 StartDate is not applied (if flag is not set)
 AD Attributes are correctly added to Subject DN
 Request a certificate from an allowed process name gets permitted
