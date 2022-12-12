@@ -4,10 +4,11 @@ All you need to do automatic integration testing for TameMyCerts with the link:h
 
 High-level steps are:
 
-* Download Windows Server 2022 Evaluation ISO from Microsoft (I use EN-US language).
-* Set up a virtual machine. Remember to set an administrator password strong enough for an AD deployment.
-* Deploy the environment (Domain, Certification Authority, Certificate Templates, Prerequisites) with the provided scripts.
-* Clone the Integration Tests into _C:\IntegrationTests\_
+* Set up a Windows Server virtual machine.
+** Remember to set an administrator password strong enough for an AD deployment.
+** You can use the link:https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2022[Windows Server 2022 Evaluation^] ISO from Microsoft (I use EN-US language).
+* Copy the content of the TameMyCerts.IntegrationTests folder into _C:\IntegrationTests\_
+* Deploy the environment (Domain, Certification Authority, Certificate Templates, Prerequisites) with the scripts provided in the _Lab-Setup_ directory.
 * Install TameMyCerts Policy Module. Set the policy directory to _C:\IntegrationTests\Tests\_.
 
 After that you can run pester with...

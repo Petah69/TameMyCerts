@@ -80,7 +80,7 @@ Function Get-OIDObject {
 
 $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
-$Templates = Get-ChildItem -Path "$BaseDirectory\Tests\*.ldf" | 
+$Templates = Get-ChildItem -Path "$BaseDirectory\..\Tests\*.ldf" | 
     Select-Object -ExpandProperty Name | 
         ForEach-Object -Process { $_.Split(".")[0] }
 
@@ -90,9 +90,11 @@ ForEach ($TemplateName in $Templates) {
 
     If (Test-Path -Path "AD:$TemplatePath") {continue}
 
+    Write-Verbose -Message "Importing $TemplateName"
+
     # Import template from LDIF
 
-    $FilePath = "$BaseDirectory\$TemplateName.ldf"
+    $FilePath = "$BaseDirectory\..\Tests\$TemplateName.ldf"
     [void](& ldifde -i -f $FilePath)
 
     # Restore OID object
@@ -117,4 +119,7 @@ ForEach ($TemplateName in $Templates) {
 Start-Sleep -Seconds 30
 
 # Publish all imported templates
-ForEach ($TemplateName in $Templates) { Add-CATemplate -Name $TemplateName -Force }
+ForEach ($TemplateName in $Templates) {
+    Write-Verbose -Message "Binding $TemplateName to CA"
+    Add-CATemplate -Name $TemplateName -Force 
+}
