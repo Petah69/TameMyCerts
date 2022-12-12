@@ -6,8 +6,7 @@ BeforeAll {
 
 Describe 'GenericWebServer_emptyPolicy.Tests' {
 
-
-    It 'Given a request is not compliant, it gets denied (RDN type not defined)' {
+    It 'Given a request is not compliant, no certificate is issued (RDN type not defined)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -KeyLength 2048
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_emptyPolicy"

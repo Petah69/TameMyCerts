@@ -5,7 +5,7 @@ BeforeAll {
 
 Describe 'GenericWebServer_pending.Tests' {
 
-    It 'Given a pending request is resubmitted by an admin, it is issued' {
+    It 'Given a pending request is resubmitted by an admin, a certificate is issued' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de"
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_pending"

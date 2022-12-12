@@ -14,7 +14,7 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
         $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
     }
 
-    It 'Given a user is member of any forbidden, a certificate is not issued' {
+    It 'Given a user is member of any forbidden, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "TestUser2@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping_GroupMemberships"
@@ -23,7 +23,7 @@ Describe 'User_Offline_DsMapping_GroupMemberships.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
 
-    It 'Given a user is not member of any allowed group, a certificate is not issued' {
+    It 'Given a user is not member of any allowed group, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "TestUser5@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping_GroupMemberships"

@@ -5,7 +5,7 @@ BeforeAll {
 
 Describe 'User_Offline_DsMapping.Tests' {
 
-    It 'Given a user is not found, a certificate is not issued' {
+    It 'Given a user is not found, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "NonExistingUser@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping"
@@ -23,7 +23,7 @@ Describe 'User_Offline_DsMapping.Tests' {
         $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
     }
 
-    It 'Given a user is found but disabled, a certificate is not issued' {
+    It 'Given a user is found but disabled, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "TestUser3@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping"

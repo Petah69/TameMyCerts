@@ -6,7 +6,7 @@ BeforeAll {
 
 Describe 'GenericWebServer.Tests' {
 
-    It 'Given a request is compliant, it gets issued (commonName only)' {
+    It 'Given a request is compliant, a certificate is issued (commonName only)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -16,7 +16,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.Certificate.Subject | Should -Be "CN=www.intra.adcslabor.de"
     }
 
-    It 'Given a request is compliant, it gets issued (commonName and iPAddress)' {
+    It 'Given a request is compliant, a certificate is issued (commonName and iPAddress)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -IP "192.168.101.1"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -26,7 +26,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.Certificate.Subject | Should -Be "CN=www.intra.adcslabor.de"
     }
 
-    It 'Given a request is compliant, it gets issued (commonName and dNSName)' {
+    It 'Given a request is compliant, a certificate is issued (commonName and dNSName)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -Dns "www.intra.adcslabor.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -36,7 +36,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.Certificate.Subject | Should -Be "CN=www.intra.adcslabor.de"
     }
 
-    It 'Given a request is not compliant, it gets denied (key too small)' {
+    It 'Given a request is not compliant, no certificate is issued (key too small)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -KeyLength 1024
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -45,7 +45,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
     }
 
-    It 'Given a request is not compliant, it gets denied (key too large)' {
+    It 'Given a request is not compliant, no certificate is issued (key too large)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -KeyLength 4096
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -54,7 +54,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
     }
 
-    It 'Given a request is not compliant, it gets denied (key is not RSA)' {
+    It 'Given a request is not compliant, no certificate is issued (key is not RSA)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -KeyAlgorithm ECDSA_P256
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -64,7 +64,7 @@ Describe 'GenericWebServer.Tests' {
     }
 
 
-    It 'Given a request is not compliant, it gets denied (no commonName)' {
+    It 'Given a request is not compliant, no certificate is issued (no commonName)' {
 
         $Csr = New-CertificateRequest -Dns "www.intra.adcslabor.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -73,7 +73,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (countryName invalid)' {
+    It 'Given a request is not compliant, no certificate is issued (countryName invalid)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de,C=UK"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -82,7 +82,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (commonName not allowed)' {
+    It 'Given a request is not compliant, no certificate is issued (commonName not allowed)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.sparkasse-bueckeburg.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -91,7 +91,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (commonName forbidden)' {
+    It 'Given a request is not compliant, no certificate is issued (commonName forbidden)' {
 
         $Csr = New-CertificateRequest -Subject "CN=wwpornw.intra.adcslabor.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -100,7 +100,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (iPAddress not allowed)' {
+    It 'Given a request is not compliant, no certificate is issued (iPAddress not allowed)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -IP "192.168.0.1"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -109,7 +109,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (dNSName not allowed)' {
+    It 'Given a request is not compliant, no certificate is issued (dNSName not allowed)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -Dns "www.sparkasse-bueckeburg.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -118,7 +118,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (userPrincipalName not defined)' {
+    It 'Given a request is not compliant, no certificate is issued (userPrincipalName not defined)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.adcslabor.de" -Upn "Administrator@intra.adcslabor.de"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -127,7 +127,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a request is not compliant, it gets denied (commonName too short)' {
+    It 'Given a request is not compliant, no certificate is issued (commonName too short)' {
 
         $Csr = New-CertificateRequest -Subject "CN=,C=DE"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
@@ -136,7 +136,7 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
-    It 'Given a denied request is resubmitted by an admin, it is issued' {
+    It 'Given a denied request is resubmitted by an admin, a certificate is issued' {
 
         $Csr = New-CertificateRequest -Subject "CN=,C=DE"
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
