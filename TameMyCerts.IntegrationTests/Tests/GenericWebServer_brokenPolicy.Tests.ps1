@@ -12,6 +12,6 @@ Describe 'GenericWebServer_brokenPolicy.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_brokenPolicy"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.NTE_FAIL
+        $Result.StatusCodeInt | Should -Be $WinError.NTE_FAIL
     }
 }

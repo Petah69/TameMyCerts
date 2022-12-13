@@ -12,7 +12,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 
@@ -22,7 +22,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 
@@ -32,7 +32,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 
@@ -42,7 +42,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
     }
 
     It 'Given a request is not compliant, no certificate is issued (key too large)' {
@@ -51,7 +51,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
     }
 
     It 'Given a request is not compliant, no certificate is issued (key is not RSA)' {
@@ -60,7 +60,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
     }
 
 
@@ -70,7 +70,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (countryName invalid)' {
@@ -79,7 +79,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (commonName not allowed)' {
@@ -88,7 +88,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (commonName forbidden)' {
@@ -97,7 +97,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (iPAddress not allowed)' {
@@ -106,7 +106,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (dNSName not allowed)' {
@@ -115,7 +115,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (userPrincipalName not defined)' {
@@ -124,7 +124,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a request is not compliant, no certificate is issued (commonName too short)' {
@@ -133,7 +133,7 @@ Describe 'GenericWebServer.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 
     It 'Given a denied request is resubmitted by an admin, it is issued' {
@@ -146,8 +146,8 @@ Describe 'GenericWebServer.Tests' {
         $Result2 = Get-IssuedCertificate -ConfigString $ConfigString -RequestId $Result1.RequestId
 
         $Result1.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result1.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result1.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
         $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result2.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result2.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
 }

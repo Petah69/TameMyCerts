@@ -78,6 +78,29 @@ Function Get-OIDObject {
         -Filter {msPKI-Cert-Template-OID -eq $Oid}
 }
 
+Function Test-AdcsServiceAvailability {
+
+    [cmdletbinding()]
+    param()
+
+    New-Variable -Option Constant -Name CC_LOCALCONFIG -Value 0x00000003
+    New-Variable -Option Constant -Name CR_PROP_CANAME -Value 0x00000006
+    New-Variable -Option Constant -Name PROPTYPE_STRING -Value 4
+
+    $CertConfig = New-Object -ComObject CertificateAuthority.Config
+    $ConfigString = $CertConfig.GetConfig($CC_LOCALCONFIG)
+    $CertAdmin = New-Object -ComObject CertificateAuthority.Admin.1
+
+    Try {
+        [void]($CertAdmin.GetCAProperty($ConfigString, $CR_PROP_CANAME, 0, $PROPTYPE_STRING,0))
+        Return $True
+    }
+    Catch {
+        Return $False
+    }
+
+}
+
 $BaseDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 
 $Templates = Get-ChildItem -Path "$BaseDirectory\..\Tests\*.ldf" | 
@@ -112,11 +135,19 @@ ForEach ($TemplateName in $Templates) {
     Set-EnrollPermission -Path "AD:$TemplatePath"
 }
 
+Stop-Service -Name CertSvc
+
 [void](& certutil -pulse)
 [void](& certutil -pulse -user)
 
 # Give the system some time to execute the AutoEnrollment task
 Start-Sleep -Seconds 30
+
+Start-Service -Name CertSvc
+
+do {
+    Start-Sleep -Seconds 1
+} while (-not (Test-AdcsServiceAvailability))
 
 # Publish all imported templates
 ForEach ($TemplateName in $Templates) {

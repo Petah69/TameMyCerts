@@ -3,6 +3,8 @@
     Deploys the Enterprise certification authority we will run our integration tests against.
 #>
 
+#Requires -Modules ServerManager
+
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False)]

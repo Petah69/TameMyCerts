@@ -12,6 +12,6 @@ Describe 'GenericWebServer_emptyPolicy.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_emptyPolicy"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERT_E_INVALID_NAME
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 }

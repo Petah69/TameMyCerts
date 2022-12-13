@@ -1,3 +1,10 @@
+<#
+    .SYNOPSIS
+    Installs the Active Directory Domain necessary for the automated unit tests.
+#>
+
+#Requires -Modules ServerManager
+
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False)]

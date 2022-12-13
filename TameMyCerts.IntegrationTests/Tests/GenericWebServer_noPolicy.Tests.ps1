@@ -12,11 +12,11 @@ Describe 'GenericWebServer_noPolicy.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_noPolicy"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 
-    It 'Given no policy is defined, flag is enabled, and SAN extension is present, no certificate is issued' {
+    It 'Given no policy is defined, flag is enabled, and SAN attribute is present, no certificate is issued' {
 
         $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
         $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
@@ -28,10 +28,10 @@ Describe 'GenericWebServer_noPolicy.Tests' {
 
         $EditFlags -band $EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2 | Should -Be $EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.NTE_FAIL
+        $Result.StatusCodeInt | Should -Be $WinError.NTE_FAIL
     }
 
-    It 'Given no policy is defined, flag is enabled, and StartDate extension is present, a certificate is issued with correct date' {
+    It 'Given no policy is defined, flag is enabled, and StartDate attribute is present, a certificate is issued with correct date' {
 
         $RegistryRoot = "HKLM:\SYSTEM\CurrentControlSet\Services\CertSvc\Configuration\$CaName\PolicyModules\TameMyCerts.Policy"
         $EditFlags = (Get-ItemProperty -Path $RegistryRoot -Name EditFlags).EditFlags
@@ -46,7 +46,7 @@ Describe 'GenericWebServer_noPolicy.Tests' {
 
         $EditFlags -band $EditFlag.EDITF_ATTRIBUTEENDDATE | Should -Be $EditFlag.EDITF_ATTRIBUTEENDDATE
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
 
         $Result.Certificate.NotBefore | Should -Be (Get-Date -Date "$NextYear-01-01 00:00:00Z")
     }
@@ -62,7 +62,7 @@ Describe 'GenericWebServer_noPolicy.Tests' {
 
         $EditFlags -band $EditFlag.EDITF_ATTRIBUTEENDDATE | Should -Be $EditFlag.EDITF_ATTRIBUTEENDDATE
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.ERROR_INVALID_TIME
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_INVALID_TIME
     }
 
     It 'Given a denied request due to invalid StartDate is resubmitted by an administrator, a certificate is issued' {
@@ -80,8 +80,8 @@ Describe 'GenericWebServer_noPolicy.Tests' {
 
         $EditFlags -band $EditFlag.EDITF_ATTRIBUTEENDDATE | Should -Be $EditFlag.EDITF_ATTRIBUTEENDDATE
         $Result1.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result1.StatusCode | Should -Be $WinError.ERROR_INVALID_TIME
+        $Result1.StatusCodeInt | Should -Be $WinError.ERROR_INVALID_TIME
         $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result2.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result2.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
 }

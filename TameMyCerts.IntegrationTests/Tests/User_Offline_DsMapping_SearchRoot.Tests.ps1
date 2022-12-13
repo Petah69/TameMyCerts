@@ -5,13 +5,13 @@ BeforeAll {
 
 Describe 'User_Offline_DsMapping_SearchRoot.Tests' {
 
-    It 'Given a user does not exit, no certificate is issued' {
+    It 'Given a user does not exist, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Upn "NonExistingUser@tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping_SearchRoot"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
 
         It 'Given a user is not in SearchRoot, no certificate is issued' {
@@ -20,7 +20,7 @@ Describe 'User_Offline_DsMapping_SearchRoot.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping_SearchRoot"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
 
     It 'Given a user is found, a certificate is issued' {
@@ -29,7 +29,7 @@ Describe 'User_Offline_DsMapping_SearchRoot.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping_SearchRoot"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
 
     It 'Given a user is found but disabled, no certificate is issued' {
@@ -38,6 +38,6 @@ Describe 'User_Offline_DsMapping_SearchRoot.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "User_Offline_DsMapping_SearchRoot"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCode | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
 }

@@ -12,6 +12,6 @@ Describe 'GenericWebServer_emptyPolicy_Audit.Tests' {
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_emptyPolicy_Audit"
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
 }

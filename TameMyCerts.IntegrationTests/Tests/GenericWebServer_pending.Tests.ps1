@@ -15,9 +15,9 @@ Describe 'GenericWebServer_pending.Tests' {
         $Result2 = Get-IssuedCertificate -ConfigString $ConfigString -RequestId $Result1.RequestId
 
         $Result1.Disposition | Should -Be $CertCli.CR_DISP_UNDER_SUBMISSION
-        $Result1.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result1.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
-        $Result2.StatusCode | Should -Be $WinError.ERROR_SUCCESS
+        $Result2.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result2.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 

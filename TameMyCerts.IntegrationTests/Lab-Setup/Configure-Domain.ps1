@@ -3,6 +3,8 @@
     Populates the Active Directory Domain with test data.
 #>
 
+#Requires -Modules ActiveDirectory
+
 [CmdletBinding()]
 param()
 
