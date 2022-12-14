@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Installs the Active Directory Domain necessary for the automated unit tests.
+    Installs the Active Directory Domain necessary for the automated integration tests.
 #>
 
 #Requires -Modules ServerManager
@@ -15,17 +15,7 @@ param(
     [Parameter(Mandatory=$False)]
     [ValidateNotNullOrEmpty()]
     [String]
-    $DomainNetbiosName = "TAMEMYCERTS",
-
-    [Parameter(Mandatory=$False)]
-    [ValidateNotNullOrEmpty()]
-    [String]
-    $FunctionalLevel = "WinThreshold",
-
-    [Parameter(Mandatory=$False)]
-    [ValidateNotNullOrEmpty()]
-    [String]
-    $Password = "P@ssw0rd"
+    $DomainNetbiosName = "TAMEMYCERTS"
 )
 
 New-Variable -Option Constant -Name BUILD_NUMBER_WINDOWS_2016 -Value 14393
@@ -41,21 +31,21 @@ If (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 
 # TODO: Maybe we want to convert a DHCP address into a fixed one here
+# TODO: Set static IP when NIC doesnt have a DHCP address (for offline deployments)
 
-Install-WindowsFeature `
-    -Name AD-Domain-Services `
-    -IncludeAllSubFeature `
-    -IncludeManagementTools
+[void](Install-WindowsFeature -Name AD-Domain-Services -IncludeAllSubFeature -IncludeManagementTools)
 
-$SecurePassword = $Password | ConvertTo-SecureString -AsPlainText -Force
+# The DS restore password doesnt really matter as this is a throw-away lab
+Add-Type -AssemblyName System.Web
+$Password = [System.Web.Security.Membership]::GeneratePassword(16,0) | ConvertTo-SecureString -AsPlainText -Force
 
 $ForestProperties = @{
 
     DomainName = $DomainName
     DomainNetbiosName = $DomainNetbiosName
-    SafeModeAdministratorPassword = $SecurePassword
-    ForestMode = $FunctionalLevel
-    DomainMode = $FunctionalLevel
+    SafeModeAdministratorPassword = $Password
+    ForestMode = "WinThreshold"
+    DomainMode = "WinThreshold"
     CreateDnsDelegation = $False
     InstallDns = $True
     DatabasePath = "$env:SystemRoot\NTDS"
@@ -68,7 +58,4 @@ $ForestProperties = @{
 
 Import-Module ADDSDeployment
 
-Install-ADDSForest @ForestProperties
-
-# TODO: DC Deployment is slow, probably due to DNS settings
-# TODO: How can we convert the original DNS Settins to a forwarder after the domain has been set up (so that we can download from the PS gallery)
+[void](Install-ADDSForest @ForestProperties)

@@ -44,6 +44,7 @@ SID Extension gets permitted
 SID Extension gets denied
 SID Extension gets removed
 SID Extension gets added from AD
+SAN gets built from Subject DN
 
 How is (subject modification) behavior with REBUILD_MODIFIED_SUBJECT_ONLY enabled?
 What about the Events generated? (do we analyze and compare them as well)

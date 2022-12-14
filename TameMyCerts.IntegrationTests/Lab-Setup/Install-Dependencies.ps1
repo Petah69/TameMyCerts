@@ -8,6 +8,8 @@
 [CmdletBinding()]
 param()
 
+# TODO: Implement support for offline module deployment so that the VM can be truly offline
+
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force

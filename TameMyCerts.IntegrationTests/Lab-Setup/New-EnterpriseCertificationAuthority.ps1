@@ -61,7 +61,7 @@ $CaDeploymentParameters = @{
 
 Install-WindowsFeature -Name Adcs-Cert-Authority -IncludeManagementTools
 
-Install-AdcsCertificationAuthority @CaDeploymentParameters
+[void](Install-AdcsCertificationAuthority @CaDeploymentParameters)
 
 [void](& certutil -setreg CA\LogLevel 4)
 [void](& certutil -setreg CA\ValidityPeriodUnits 50)

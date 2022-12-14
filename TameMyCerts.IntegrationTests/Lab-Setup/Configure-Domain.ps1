@@ -56,3 +56,13 @@ Get-ADGroup -Identity "AnallowedGroup" | Add-ADGroupMember -Members "TestUser2"
 Get-ADGroup -Identity "AforbiddenGroup" | Add-ADGroupMember -Members "TestUser2"
 Disable-ADAccount -Identity "TestUser3"
 Get-ADUser -Identity "TestUser4" | Move-ADObject -TargetPath "CN=Users,$DomainName"
+
+"co", "company", "department", "departmentNumber", "description", "displayName", "division", "employeeID", "employeeNumber", "employeeType", "facsimileTelephoneNumber", "gecos", 
+"homePhone", "homePostalAddress", "info", "l", "mail", "middleName", "mobile",  "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalTitle", 
+"postalAddress", "postalCode", "postOfficeBox", "st", "street", "streetAddress", "telephoneNumber", "title" | ForEach-Object -Process {
+
+    Set-ADUser -Identity TestUser1 -Add @{$_ = "v-$_"}
+
+}
+
+Set-ADUser -Identity TestUser1 -Add @{c = "DE"}

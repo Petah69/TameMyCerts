@@ -1,17 +1,24 @@
-﻿= Integration Tests for the TameMyCerts policy module
+﻿= Automated integration Tests for the TameMyCerts policy module
 
-All you need to do automatic integration testing for TameMyCerts with the link:https://github.com/pester/Pester[Pester^] PowerShell framework.
+All a developer needs to do automatic integration testing for TameMyCerts with the link:https://github.com/pester/Pester[Pester^] PowerShell framework.
 
-High-level steps are:
+Tests are executed against a standardized lab environment. They leverage the link:https://github.com/Sleepw4lker/PSCertificateEnrollment[PSCertificateEnrollment^] PowerShell module.
 
-* Set up a Windows Server virtual machine.
+High-level steps to get going are:
+
+* Set up a Windows Server (2016, 2019 oder 2022) virtual machine.
 ** Remember to set an administrator password strong enough for an AD deployment.
 ** You can use the link:https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2022[Windows Server 2022 Evaluation^] ISO from Microsoft (I use EN-US language).
-* Copy the content of the TameMyCerts.IntegrationTests folder into _C:\IntegrationTests\_
-* Deploy the environment (Domain, Certification Authority, Certificate Templates, Prerequisites) with the scripts provided in the _Lab-Setup_ directory.
-* Install TameMyCerts Policy Module. Set the policy directory to _C:\IntegrationTests\Tests\_.
+* Copy the content of the _TameMyCerts.IntegrationTests_ folder from this repository into _C:\IntegrationTests\_ on the lab machine.
+* Deploy the environment with the scripts provided in the _Lab-Setup_ directory.
+1. New-Domain.ps1
+2. Configure-Domain.ps1
+3. New-EnterpriseCertificationAuthority.ps1
+4. Import-CertificateTemplates.ps1
+5. Install-Dependencies.ps1
+* Install the build of the TameMyCerts Policy Module you want to test. Set the policy directory to _C:\IntegrationTests\Tests\_ during installation.
 
-After that you can run pester with...
+After that you can run Pester (_...as Administrator_) with...
 
 ....
 Invoke-Pester -Output Detailed -Path C:\IntegrationTests\Tests\
