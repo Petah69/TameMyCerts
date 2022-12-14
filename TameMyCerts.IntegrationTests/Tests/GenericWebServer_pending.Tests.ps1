@@ -1,6 +1,8 @@
 BeforeAll {
 
     . "C:\IntegrationTests\Tests\lib\Init.ps1"
+
+    $CertificateTemplate = "GenericWebServer_pending"
 }
 
 Describe 'GenericWebServer_pending.Tests' {
@@ -8,7 +10,7 @@ Describe 'GenericWebServer_pending.Tests' {
     It 'Given a pending request is resubmitted by an admin, a certificate is issued' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
-        $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate "GenericWebServer_pending"
+        $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         (& certutil -config $ConfigString -resubmit $Result1.RequestId)
 

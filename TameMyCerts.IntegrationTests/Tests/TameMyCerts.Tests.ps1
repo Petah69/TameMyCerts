@@ -48,4 +48,9 @@ SAN gets built from Subject DN
 
 How is (subject modification) behavior with REBUILD_MODIFIED_SUBJECT_ONLY enabled?
 What about the Events generated? (do we analyze and compare them as well)
+
+all mandatory present
+not all mandatory present but required
+
+
 #>

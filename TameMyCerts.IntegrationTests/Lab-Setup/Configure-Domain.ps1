@@ -15,7 +15,9 @@ New-ADOrganizationalUnit `
     -Path $DomainName `
     -ProtectedFromAccidentalDeletion $True
 
-$SecurePassword = "P@ssw0rd" | ConvertTo-SecureString -AsPlainText -Force
+# The user doesnt really matter as this is a throw-away lab
+Add-Type -AssemblyName System.Web
+$Password = [System.Web.Security.Membership]::GeneratePassword(16,0) | ConvertTo-SecureString -AsPlainText -Force
 
 (1..5) | ForEach-Object -Process {
 
@@ -27,7 +29,7 @@ $SecurePassword = "P@ssw0rd" | ConvertTo-SecureString -AsPlainText -Force
         -Surname "User $($_)" `
         -Path "OU=TameMyCerts Users,$DomainName" `
         -Enabled $True `
-        -AccountPassword $SecurePassword
+        -AccountPassword $Password
 
 }
 
