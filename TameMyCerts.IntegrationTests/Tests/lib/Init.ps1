@@ -50,6 +50,12 @@ New-Variable -Option Constant -Name CertCli -Value @{
     CR_DISP_REVOKED = 6
 }
 
+New-Variable -Option Constant -Name Oid -Value @{
+
+    szOID_DS_CA_SECURITY_EXT = "1.3.6.1.4.1.311.25.2"
+
+}
+
 New-Variable -Option Constant -Name EditFlag -Value @{
     EDITF_ATTRIBUTEENDDATE = 0x20
     EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x40000

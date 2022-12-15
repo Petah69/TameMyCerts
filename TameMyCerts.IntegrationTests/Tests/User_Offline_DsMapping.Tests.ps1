@@ -33,7 +33,5 @@ Describe 'User_Offline_DsMapping.Tests' {
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
         $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
-
-
-
+    
 }
