@@ -16,7 +16,7 @@ Describe 'User_Offline_Sid_Deny.Tests' {
         $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
 
-    It 'Given a denied request due to denied SID extension is resubmitted by an administrator, a certificate is issued' {
+    It 'Given a denied request due to denied SID extension is resubmitted by an administrator, a certificate with SID extension is issued' {
 
         $Csr = New-CertificateRequest -Subject "CN=TestUser1" -Sid "S-1-5-21-1471894826-1984196480-850735463-500"
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate

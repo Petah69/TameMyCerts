@@ -7,7 +7,7 @@ BeforeAll {
 
 Describe 'User_Offline_Sid_Allow.Tests' {
 
-    It 'Given a SID extension is requested, a certificate is issued' {
+    It 'Given a SID extension is requested, a certificate with SID extension is issued' {
 
         $Csr = New-CertificateRequest -Subject "CN=TestUser1" -Sid "S-1-5-21-1471894826-1984196480-850735463-500"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate

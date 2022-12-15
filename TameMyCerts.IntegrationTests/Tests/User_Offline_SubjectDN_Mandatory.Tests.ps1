@@ -27,7 +27,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
 
     }
 
-    It 'Given a denied request due to missing mandatory is resubmitted by an administrator, a certificate is issued and Subject DN is not modified' {
+    It 'Given a denied request due to missing mandatory attributes is resubmitted by an administrator, a certificate is issued and Subject DN is not modified' {
 
         $Csr = New-CertificateRequest -Subject "CN=TestUser2" -Upn "TestUser2@tamemycerts-tests.local"
         $Result1 = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate

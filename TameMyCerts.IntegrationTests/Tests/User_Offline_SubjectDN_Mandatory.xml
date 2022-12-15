@@ -71,12 +71,7 @@
         <Field>givenName</Field>
         <DirectoryServicesAttribute>givenName</DirectoryServicesAttribute>
         <Mandatory>true</Mandatory>
-      </RelativeDistinguishedName>
-      <RelativeDistinguishedName>
-        <Field>initials</Field>
-        <DirectoryServicesAttribute>initials</DirectoryServicesAttribute>
-        <Mandatory>true</Mandatory>
-      </RelativeDistinguishedName>    
+      </RelativeDistinguishedName>  
       <RelativeDistinguishedName>
         <Field>surname</Field>
         <DirectoryServicesAttribute>sn</DirectoryServicesAttribute>

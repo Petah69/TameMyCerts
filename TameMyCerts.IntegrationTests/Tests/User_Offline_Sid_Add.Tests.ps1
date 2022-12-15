@@ -9,7 +9,7 @@ BeforeAll {
 
 Describe 'User_Offline_Sid_Add.Tests' {
 
-    It 'Given a SID extension is requested, a certificate is issued with correct SID extension' {
+    It 'Given a SID extension is requested, a certificate with SID extension is issued' {
 
         $MySelf = Get-ADUser -Identity $env:Username
 

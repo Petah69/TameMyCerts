@@ -3,7 +3,7 @@
     Imports all required certificate templates into AD and binds them to the test certification authority.
 #>
 
-#Requires -Modules ActiveDirectory,ADCSAdministration
+#Requires -Modules ActiveDirectory
 
 [cmdletbinding()]
 param (
@@ -109,6 +109,8 @@ $Templates = Get-ChildItem -Path "$BaseDirectory\..\Tests\*.ldf" |
 
 ForEach ($TemplateName in $Templates) {
 
+    Write-Host "Importing $TemplateName"
+
     $TemplatePath = "CN=$TemplateName,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
 
     If (Test-Path -Path "AD:$TemplatePath") {continue}
@@ -135,13 +137,19 @@ ForEach ($TemplateName in $Templates) {
     Set-EnrollPermission -Path "AD:$TemplatePath"
 }
 
+Write-Host "Updating caches"
+
 Stop-Service -Name CertSvc
 
 [void](& certutil -pulse)
 [void](& certutil -pulse -user)
 
-# Give the system some time to execute the AutoEnrollment task
-Start-Sleep -Seconds 30
+do {
+    Start-Sleep -Seconds 1
+} while (
+    (Get-ScheduledTask -TaskPath \Microsoft\Windows\CertificateServicesClient\ -TaskName SystemTask).State -eq "Running" -or
+    (Get-ScheduledTask -TaskPath \Microsoft\Windows\CertificateServicesClient\ -TaskName UserTask).State -eq "Running"
+)
 
 Start-Service -Name CertSvc
 
@@ -151,6 +159,6 @@ do {
 
 # Publish all imported templates
 ForEach ($TemplateName in $Templates) {
-    Write-Verbose -Message "Binding $TemplateName to CA"
-    Add-CATemplate -Name $TemplateName -Force 
+    Write-Host "Binding $TemplateName to CA"
+    [void](& certutil -setCAtemplates +$TemplateName)
 }
