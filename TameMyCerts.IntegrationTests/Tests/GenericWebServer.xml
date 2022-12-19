@@ -14,11 +14,10 @@
           <Expression>^[-_a-zA-Z0-9]*(\.intra)?(\.tamemycerts-tests\.local)$</Expression>
         </Pattern>
         <Pattern>
-          <Expression>192.168.0.0/24</Expression>
-          <TreatAs>Cidr</TreatAs>
+          <Expression>^this-is-a-test$</Expression>
         </Pattern>
-        <Pattern><!-- note that this only works for substitution as of version 1.4 -->
-          <Expression>0000:0000:0000:0000:0000:0000:0000:0000/128</Expression>
+        <Pattern>
+          <Expression>192.168.0.0/24</Expression>
           <TreatAs>Cidr</TreatAs>
         </Pattern>
         <Pattern>

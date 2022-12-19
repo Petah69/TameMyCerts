@@ -29,28 +29,16 @@ Describe 'TameMyCerts.Tests' {
 }
 
 <#
-Audit Mode logs when denied
-Audit Mode does no log when approved
-Certificate content doesnt get modified when Audit mode is enabled
-Certificate content gets modified when Audit mode is not enabled
-Certificate content gets modified for a resubmitted request
-StartDate is not applied (if flag is not set)
-AD Attributes are correctly added to Subject DN
+DS mapping will probably fail for an online template using the built-in administrator account, as the userPrincipalName is not mandatory. Write a test for this and think about changing to sAMAccountName perhaps.
+
 Request a certificate from an allowed process name gets permitted
 Request a certificate from a disallowed process name gets denied
 Request a certificate from an allowed CSP gets permitted
 Request a certificate from a disallowed CSP gets denied
-SID Extension gets permitted
-SID Extension gets denied
-SID Extension gets removed
-SID Extension gets added from AD
-SAN gets built from Subject DN
 
 How is (subject modification) behavior with REBUILD_MODIFIED_SUBJECT_ONLY enabled?
 What about the Events generated? (do we analyze and compare them as well)
 
-all mandatory present
-not all mandatory present but required
-
-
+Audit Mode logs when denied
+Audit Mode does no log when approved
 #>

@@ -21,9 +21,81 @@ Function Test-AdcsServiceAvailability {
 
 }
 
+Function Get-SubjectAlternativeNames {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(  
+            Mandatory = $True,   
+            ValueFromPipeline = $True
+        )]
+        [X509Certificate]
+        $Certificate
+    )
+
+    New-Variable -Option Constant -Name XCN_CRYPT_STRING_BASE64 -Value 1
+    New-Variable -Option Constant -Name XCN_OID_SUBJECT_ALT_NAME2 -Value "2.5.29.17"
+
+    New-Variable -Option Constant -Name XCN_CERT_ALT_NAME_RFC822_NAME -Value 2
+    New-Variable -Option Constant -Name XCN_CERT_ALT_NAME_DNS_NAME -Value 3
+    New-Variable -Option Constant -Name XCN_CERT_ALT_NAME_URL -Value 7
+    New-Variable -Option Constant -Name XCN_CERT_ALT_NAME_IP_ADDRESS -Value 8
+    New-Variable -Option Constant -Name XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME -Value 11
+
+    $Certificate.Extensions | Where-Object {$_.Oid.Value -eq $XCN_OID_SUBJECT_ALT_NAME2} | Foreach-Object -Process {
+
+        $AlternativeNames = New-Object -ComObject X509Enrollment.CX509ExtensionAlternativeNames
+                
+        $AlternativeNames.InitializeDecode($XCN_CRYPT_STRING_BASE64,  [Convert]::ToBase64String($_.RawData)) 
+
+        Foreach ($AlternativeName in $AlternativeNames.AlternativeNames) {
+
+            switch ($AlternativeName.Type) {
+
+                $XCN_CERT_ALT_NAME_DNS_NAME {
+
+                    [PSCustomObject] @{
+                       SAN = "dNSName=$($AlternativeName.strValue)"
+                    }
+                }
+    
+                $XCN_CERT_ALT_NAME_IP_ADDRESS {
+    
+                    [PSCustomObject] @{
+                       SAN = "iPAddress=$([IPAddress] ([Convert]::FromBase64String($AlternativeName.RawData($XCN_CRYPT_STRING_BASE64))))"
+                    }
+                }
+                
+                $XCN_CERT_ALT_NAME_USER_PRINCIPLE_NAME {
+    
+                    [PSCustomObject] @{
+                       SAN = "userPrincipalName=$($AlternativeName.strValue)"
+                    }
+                }
+    
+                $XCN_CERT_ALT_NAME_RFC822_NAME {
+    
+                    [PSCustomObject] @{
+                       SAN = ="rfc822Name=$($AlternativeName.strValue)"
+                    }
+                }
+    
+                $XCN_CERT_ALT_NAME_URL {
+    
+                    [PSCustomObject] @{
+                       SAN = "uniformResourceIdentifier=$($AlternativeName.strValue)"
+                    }
+                }
+            }
+        }
+        
+        [void]([System.Runtime.Interopservices.Marshal]::ReleaseComObject($AlternativeNames))
+    }
+}
+
 $TestStartTime = Get-Date
 
-Import-Module -Name PSCertificateEnrollment -MinimumVersion "1.0.7" -ErrorAction Stop
+Import-Module -Name PSCertificateEnrollment -MinimumVersion "1.0.8" -ErrorAction Stop
 
 $CaName = "TEST-CA"
 $DomainName = "tamemycerts-tests.local"

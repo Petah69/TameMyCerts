@@ -220,4 +220,40 @@ Describe 'GenericWebServer.Tests' {
         $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result2.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
     }
+
+    It 'Given a request is compliant, a certificate is issued and SAN is supplemented (fully qualified)' {
+
+        $Identity = "www.intra.tamemycerts-tests.local"
+        $Csr = New-CertificateRequest -Subject "CN=$Identity"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
+        $Result.Certificate.Subject | Should -Be "CN=$Identity"
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "dNSName=$Identity"
+    }
+
+    It 'Given a request is compliant, a certificate is issued and SAN is supplemented (non-qualified)' {
+
+        $Identity = "this-is-a-test"
+        $Csr = New-CertificateRequest -Subject "CN=$Identity"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
+        $Result.Certificate.Subject | Should -Be "CN=$Identity"
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "dNSName=$Identity"
+    }
+
+    It 'Given a request is compliant, a certificate is issued and SAN is supplemented (IPv4)' {
+
+        $Identity = "192.168.0.1"
+        $Csr = New-CertificateRequest -Subject "CN=$Identity"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
+        $Result.Certificate.Subject | Should -Be "CN=$Identity"
+        $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "iPAddress=$Identity"
+    }
 }
