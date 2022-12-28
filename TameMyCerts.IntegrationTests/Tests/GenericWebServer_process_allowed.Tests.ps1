@@ -2,14 +2,18 @@ BeforeAll {
 
     . "C:\IntegrationTests\Tests\lib\Init.ps1"
 
-    $CertificateTemplate = "GenericWebServer_ECDSA"
+    $CertificateTemplate = "GenericWebServer_process_allowed"
 }
 
-Describe 'GenericWebServer_ECDSA.Tests' {
+Describe 'GenericWebServer_process_allowed.Tests' {
 
     It 'Given a request is compliant, a certificate is issued' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -KeyAlgorithm ECDSA_P256
+        # We explicitly dont't create this request with PSCertificateEnrollment as powershell.exe is not allowed in this test
+        $RequestFileName = "$($env:temp)\$(Get-Random -Minimum 100000 -Maximum 999999).req"
+        [void](& certreq.exe -new "$PSScriptRoot\$($CertificateTemplate).inf" $RequestFileName)
+        $Csr = Get-Content -Path $RequestFileName -raw
+        
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
@@ -17,13 +21,13 @@ Describe 'GenericWebServer_ECDSA.Tests' {
         $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 
-    It 'Given a request is not compliant, no certificate is issued (key is not ECC)' {
+    It 'Given a request is not compliant, no certificate is issued' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
-        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
+        $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
     }
 
 }
