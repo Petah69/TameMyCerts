@@ -20,6 +20,9 @@ using TameMyCerts.Enums;
 using TameMyCerts.Models;
 using TameMyCerts.Validators;
 
+// TODO: Unit Test for a 1 Minute time frame
+// TODO: Unit Test that verifies correct Start and End Date
+
 namespace TameMyCerts.Tests
 {
     [TestClass]
@@ -130,7 +133,7 @@ namespace TameMyCerts.Tests
         {
             var caConfig = new CertificationAuthorityConfiguration(EditFlag.EDITF_ATTRIBUTESUBJECTALTNAME2);
             var validationResult = _validationResult;
-            validationResult.RequestAttributes.Add("san", "doesnt-matter");
+            validationResult.RequestAttributes.Add("saN", "doesnt-matter");
 
             validationResult = _attributeValidator.VerifyRequest(_validationResult, caConfig);
 
@@ -146,7 +149,7 @@ namespace TameMyCerts.Tests
             var caConfig = new CertificationAuthorityConfiguration(0);
 
             var validationResult = _validationResult;
-            validationResult.RequestAttributes.Add("san", "doesnt-matter");
+            validationResult.RequestAttributes.Add("saN", "doesnt-matter");
 
             validationResult = _attributeValidator.VerifyRequest(_validationResult, caConfig);
 

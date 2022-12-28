@@ -748,6 +748,7 @@ namespace TameMyCerts.Tests
             Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
         }
 
+        // TODO: Add test for unqualified DNS name
         [TestMethod]
         public void SupplementDnsName()
         {
@@ -1119,6 +1120,20 @@ namespace TameMyCerts.Tests
         }
 
         [TestMethod]
+        public void Allow_process_name_not_forbidden()
+        {
+            var requestPolicy = _requestPolicy;
+            requestPolicy.DisallowedProcesses.Add("certreq.exe");
+
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
+            PrintResult(validationResult);
+
+            Assert.IsFalse(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        }
+
+        [TestMethod]
         public void Allow_process_name_invalid_in_audit_mode()
         {
             var requestPolicy = _requestPolicy;
@@ -1204,6 +1219,23 @@ namespace TameMyCerts.Tests
         {
             var requestPolicy = _requestPolicy;
             requestPolicy.AllowedCryptoProviders.Add("Microsoft Software Key Storage Provider");
+
+            var validationResult = _validationResult;
+            validationResult.RequestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
+
+            validationResult =
+                _requestValidator.VerifyRequest(validationResult, requestPolicy, _templateInfo, _standardCsr);
+            PrintResult(validationResult);
+
+            Assert.IsFalse(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.ERROR_SUCCESS));
+        }
+
+        [TestMethod]
+        public void Allow_crypto_provider_not_forbidden()
+        {
+            var requestPolicy = _requestPolicy;
+            requestPolicy.DisallowedCryptoProviders.Add("Microsoft Enhanced RSA and AES Cryptographic Provider");
 
             var validationResult = _validationResult;
             validationResult.RequestAttributes.Add("RequestCSPProvider", "Microsoft Software Key Storage Provider");
@@ -1694,6 +1726,62 @@ namespace TameMyCerts.Tests
             var validationResult =
                 _requestValidator.VerifyRequest(_validationResult, _requestPolicy, _templateInfo, request,
                     CertCli.CR_IN_CMC);
+            PrintResult(validationResult);
+
+            Assert.IsTrue(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        }
+
+        [TestMethod]
+        public void Deny_commonName_ip_disallowed()
+        {
+            var requestPolicy = _requestPolicy;
+
+            requestPolicy.Subject.Clear();
+
+            requestPolicy.Subject.Add(
+                new SubjectRule
+                {
+                    Field = "commonName",
+                    Mandatory = true,
+                    Patterns = new List<Pattern>
+                    {
+                        new Pattern {Expression = @"192.168.0.0/16", TreatAs = "Cidr"}
+                    }
+                }
+            );
+
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
+            PrintResult(validationResult);
+
+            Assert.IsTrue(validationResult.DeniedForIssuance);
+            Assert.IsTrue(validationResult.StatusCode.Equals(WinError.CERT_E_INVALID_NAME));
+        }
+
+        [TestMethod]
+        public void Deny_commonName_ip_invalid()
+        {
+            var requestPolicy = _requestPolicy;
+
+            requestPolicy.Subject.Clear();
+
+            requestPolicy.Subject.Add(
+                new SubjectRule
+                {
+                    Field = "commonName",
+                    Mandatory = true,
+                    Patterns = new List<Pattern>
+                    {
+                        new Pattern {Expression = @"test", TreatAs = "Cidr"},
+                        new Pattern {Expression = @"test/0", TreatAs = "Cidr"},
+                        new Pattern {Expression = @"0.0.0.0/test", TreatAs = "Cidr"}
+                    }
+                }
+            );
+
+            var validationResult =
+                _requestValidator.VerifyRequest(_validationResult, requestPolicy, _templateInfo, _standardCsr);
             PrintResult(validationResult);
 
             Assert.IsTrue(validationResult.DeniedForIssuance);
