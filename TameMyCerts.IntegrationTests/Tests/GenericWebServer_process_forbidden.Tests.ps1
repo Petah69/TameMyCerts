@@ -11,7 +11,7 @@ Describe 'GenericWebServer_process_forbidden.Tests' {
     It 'Given a request is compliant, a certificate is issued' {
 
         # We explicitly dont't create this request with PSCertificateEnrollment as powershell.exe is not allowed in this test
-        $RequestFileName = "$($env:temp)\$(Get-Random -Minimum 100000 -Maximum 999999).req"
+        $RequestFileName = "$($env:temp)\$((New-Guid).Guid).req"
         [void](& certreq.exe -new "$PSScriptRoot\$($CertificateTemplate).inf" $RequestFileName)
         $Csr = Get-Content -Path $RequestFileName -raw
         

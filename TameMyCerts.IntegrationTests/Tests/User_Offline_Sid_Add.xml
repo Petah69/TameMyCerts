@@ -13,6 +13,7 @@
     </SubjectRule>
   </Subject>
   <DirectoryServicesMapping>
+    <!-- userPrincipalName is by default not populated to built-in administrator account -->
     <CertificateAttribute>commonName</CertificateAttribute>
     <DirectoryServicesAttribute>sAMAccountName</DirectoryServicesAttribute>
   </DirectoryServicesMapping>
