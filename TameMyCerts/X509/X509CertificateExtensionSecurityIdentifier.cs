@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using System.Linq;
 using System.Security.Principal;
+using System.Text;
 
-namespace TameMyCerts.Tests
+namespace TameMyCerts.X509
 {
-    [TestClass]
-    public class SidCertificateExtensionTests
+    public class X509CertificateExtensionSecurityIdentifier : X509CertificateExtension
     {
-        [TestMethod]
-        public void Result_is_valid()
+        public X509CertificateExtensionSecurityIdentifier(SecurityIdentifier sid)
         {
-            const string sid = "S-1-5-21-1381186052-4247692386-135928078-1225";
-            const string expectedResult =
-                "MD+gPQYKKwYBBAGCNxkCAaAvBC1TLTEtNS0yMS0xMzgxMTg2MDUyLTQyNDc2OTIzODYtMTM1OTI4MDc4LTEyMjU=";
+            var result = Encoding.ASCII.GetBytes(sid.ToString());
 
-            var sidExt = new CX509ExtensionSecurityIdentifier();
-            sidExt.InitializeEncode(new SecurityIdentifier(sid));
+            result = Asn1BuildNode(0x04, result);
+            result = Asn1BuildNode(0xA0, result);
+            result = new byte[] {0x06, 0x0A, 0x2B, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x19, 0x02, 0x01}
+                .Concat(result).ToArray();
+            result = Asn1BuildNode(0xA0, result);
+            result = Asn1BuildNode(0x30, result);
 
-            Assert.IsTrue(Convert.ToBase64String(sidExt.RawData()).Equals(expectedResult));
+            RawData = result;
         }
     }
 }
