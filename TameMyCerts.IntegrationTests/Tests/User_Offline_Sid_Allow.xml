@@ -3,7 +3,6 @@
     <SubjectRule>
       <Field>commonName</Field>
       <Mandatory>true</Mandatory>
-      <MaxOccurrences>1</MaxOccurrences>
       <MaxLength>64</MaxLength>
       <Patterns>
         <Pattern>

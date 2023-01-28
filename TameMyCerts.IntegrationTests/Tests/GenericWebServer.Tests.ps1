@@ -64,7 +64,6 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCodeInt | Should -Be $WinError.CERTSRV_E_KEY_LENGTH
     }
 
-
     It 'Given a request is not compliant, no certificate is issued (no commonName)' {
 
         $Csr = New-CertificateRequest -Dns "www.intra.tamemycerts-tests.local"
@@ -85,7 +84,7 @@ Describe 'GenericWebServer.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued (commonName not allowed)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.sparkasse-bueckeburg.de"
+        $Csr = New-CertificateRequest -Subject "CN=www.this-is-an-invalid-dns-name.org"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -112,7 +111,7 @@ Describe 'GenericWebServer.Tests' {
 
     It 'Given a request is not compliant, no certificate is issued (dNSName not allowed)' {
 
-        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -Dns "www.sparkasse-bueckeburg.de"
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -Dns "www.this-is-an-invalid-dns-name.org"
         $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
@@ -255,5 +254,17 @@ Describe 'GenericWebServer.Tests' {
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
         $Result.Certificate.Subject | Should -Be "CN=$Identity"
         $Result.Certificate | Get-SubjectAlternativeNames | Select-Object -ExpandProperty SAN | Should -Contain "iPAddress=$Identity"
+    }
+    
+    It 'Given a request is compliant, and contains multiple fileds of same type, the request is denied' {
+
+        $Identity1 = "www.intra.tamemycerts-tests.local"
+        $Identity2 = "this-is-a-test"
+        $Identity3 = "192.168.0.1"
+        $Csr = New-CertificateRequest -Subject "CN=$Identity1,CN=$Identity2,CN=$Identity3"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_DENIED
+        $Result.StatusCodeInt | Should -Be $WinError.CERT_E_INVALID_NAME
     }
 }

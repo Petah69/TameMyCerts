@@ -125,7 +125,7 @@ New-Variable -Option Constant -Name CertCli -Value @{
 New-Variable -Option Constant -Name Oid -Value @{
 
     szOID_DS_CA_SECURITY_EXT = "1.3.6.1.4.1.311.25.2"
-
+    XCN_OID_ENROLLMENT_AGENT = "1.3.6.1.4.1.311.20.2.1"
 }
 
 New-Variable -Option Constant -Name EditFlag -Value @{
