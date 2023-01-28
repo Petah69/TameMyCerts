@@ -80,6 +80,7 @@ namespace TameMyCerts.Tests
                 KeyAlgorithm = "RSA",
                 MinimumKeyLength = 2048,
                 MaximumKeyLength = 4096,
+                ReadSubjectFromRequest = true,
                 Subject = new List<SubjectRule>
                 {
                     new SubjectRule
