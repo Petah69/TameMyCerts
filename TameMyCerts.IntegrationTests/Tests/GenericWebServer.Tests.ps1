@@ -17,6 +17,18 @@ Describe 'GenericWebServer.Tests' {
         $Result.Certificate.Subject | Should -Be "CN=www.intra.tamemycerts-tests.local"
     }
 
+    It 'Given a request contains unknown RDNs, a certificate is issued without them' {
+
+        # Not detected but ignored
+        $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local,OID.1.2.3.4=test"
+        $Result = $Csr | Get-IssuedCertificate -ConfigString $ConfigString -CertificateTemplate $CertificateTemplate
+
+        $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
+        $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
+        $Result.Certificate.Subject | Should -Match "CN=www.intra.tamemycerts-tests.local"
+        $Result.Certificate.Subject | Should -Not -Match "OID.1.2.3.4"
+    }
+
     It 'Given a request is compliant, a certificate is issued (commonName and iPAddress)' {
 
         $Csr = New-CertificateRequest -Subject "CN=www.intra.tamemycerts-tests.local" -IP "192.168.101.1"

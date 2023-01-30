@@ -15,7 +15,12 @@ param(
     [Parameter(Mandatory=$False)]
     [ValidateNotNullOrEmpty()]
     [String]
-    $ConfigNC = "CN=Configuration,DC=tamemycerts-tests,DC=local"
+    $ConfigNC = "CN=Configuration,DC=tamemycerts-tests,DC=local",
+
+    [Parameter(Mandatory=$False)]
+    [ValidateNotNullOrEmpty()]
+    [String]
+    $DomainName = "DC=tamemycerts-tests,DC=local"
 )
 
 New-Variable -Option Constant -Name BUILD_NUMBER_WINDOWS_2016 -Value 14393
@@ -129,7 +134,74 @@ Function Test-AdcsServiceAvailability {
 
 #endregion
 
+#region Configure Domain Environment
+
+Write-Host "Provisioning users and groups"
+
+New-ADOrganizationalUnit `
+    -Name "TameMyCerts Users" `
+    -Path $DomainName `
+    -ProtectedFromAccidentalDeletion $True
+
+# The user doesnt really matter as this is a throw-away lab
+Add-Type -AssemblyName System.Web
+$Password = [System.Web.Security.Membership]::GeneratePassword(16,0) | ConvertTo-SecureString -AsPlainText -Force
+
+(1..5) | ForEach-Object -Process {
+
+    New-ADUser `
+        -SamAccountName "TestUser$($_)" `
+        -UserPrincipalName "testuser$($_)@tamemycerts-tests.local" `
+        -Name "Test User $($_)" `
+        -GivenName "Test" `
+        -Surname "User $($_)" `
+        -Path "OU=TameMyCerts Users,$DomainName" `
+        -Enabled $True `
+        -AccountPassword $Password
+
+}
+
+New-ADOrganizationalUnit `
+    -Name "TameMyCerts Groups" `
+    -Path $DomainName `
+    -ProtectedFromAccidentalDeletion $True
+
+
+"An allowed Group",
+"A forbidden Group" | ForEach-Object -Process {
+
+    New-ADGroup `
+        -Name "$($_)" `
+        -SamAccountName $($_).Replace(" ", "") `
+        -GroupCategory Security `
+        -GroupScope Global `
+        -DisplayName $($_) `
+        -Path "OU=TameMyCerts Groups,$DomainName" `
+        -Description $($_)
+
+}
+
+Get-ADGroup -Identity "AnallowedGroup" | Add-ADGroupMember -Members "TestUser1"
+Get-ADGroup -Identity "AnallowedGroup" | Add-ADGroupMember -Members "TestUser2"
+Get-ADGroup -Identity "AforbiddenGroup" | Add-ADGroupMember -Members "TestUser2"
+Disable-ADAccount -Identity "TestUser3"
+Get-ADUser -Identity "TestUser4" | Move-ADObject -TargetPath "CN=Users,$DomainName"
+
+"co", "company", "department", "departmentNumber", "description", "displayName", "division", "employeeID", "employeeNumber", "employeeType", "facsimileTelephoneNumber", "gecos", 
+"homePhone", "homePostalAddress", "info", "l", "mail", "middleName", "mobile",  "otherMailbox", "otherMobile", "otherPager", "otherTelephone", "pager", "personalTitle", 
+"postalAddress", "postalCode", "postOfficeBox", "st", "street", "streetAddress", "telephoneNumber", "title" | ForEach-Object -Process {
+
+    Set-ADUser -Identity TestUser1 -Add @{$_ = "v-$_"}
+
+}
+
+Set-ADUser -Identity TestUser1 -Add @{c = "DE"}
+
+#endregion
+
 #region Setup Enterprise Certification Authority
+
+Write-Host "Installing certification authority"
 
 [void](Remove-Item -Path "$($env:SystemRoot)\capolicy.inf" -Force -ErrorAction SilentlyContinue)
         
@@ -160,22 +232,33 @@ $CaDeploymentParameters = @{
     ValidityPeriodUnits = 50
 }
 
-Install-WindowsFeature -Name Adcs-Cert-Authority -IncludeManagementTools
+[void](Install-WindowsFeature -Name Adcs-Cert-Authority -IncludeManagementTools)
 
 [void](Install-AdcsCertificationAuthority @CaDeploymentParameters)
 
 [void](& certutil -setreg CA\LogLevel 4)
 [void](& certutil -setreg CA\ValidityPeriodUnits 50)
-[void](& certutil -setreg Policy\EditFlags +EDITF_ATTRIBUTEENDDATE)
 
 # Though this is insecure, we enable the flag in the lab to test the logic inside TameMyCerts
 [void](& certutil -setreg Policy\EditFlags +EDITF_ATTRIBUTESUBJECTALTNAME2)
+[void](& certutil -setreg Policy\EditFlags +EDITF_ATTRIBUTEENDDATE)
+
+[void](& certutil -setreg CA\SubjectTemplate +Title)
+[void](& certutil -setreg CA\SubjectTemplate +GivenName)
+[void](& certutil -setreg CA\SubjectTemplate +Initials)
+[void](& certutil -setreg CA\SubjectTemplate +SurName)
+[void](& certutil -setreg CA\SubjectTemplate +StreetAddress)
+[void](& certutil -setreg CA\SubjectTemplate +UnstructuredName)
+[void](& certutil -setreg CA\SubjectTemplate +UnstructuredAddress)
+[void](& certutil -setreg CA\SubjectTemplate +DeviceSerialNumber)
 
 Restart-Service -Name CertSvc
 
 # endregion
 
 #region Import Certificate Templates
+
+Write-Host "Importing certificate templates"
 
 $Templates = Get-ChildItem -Path "$BaseDirectory\..\Tests\*.ldf" | 
     Select-Object -ExpandProperty Name | 
@@ -239,20 +322,24 @@ ForEach ($TemplateName in $Templates) {
 
 # endregion
 
+#region Request Enrollment Aqent certificate
+
+Write-Host "Requesting Enrollment Agent certificate"
+
+& certreq -q -enroll TestLabEnrollmentAgent
+
+#endregion
+
 #region Install Dependencies
+
+Write-Host "Installing PowerShell Modules"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+[void](Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force)
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
 Install-Module -Name "PSCertificateEnrollment" -MinimumVersion 1.0.8 -Force
 Install-Module -Name "Pester" -Force -SkipPublisherCheck
-
-#endregion
-
-#region Request Enrollment Aqent certificate
-
-& [void](& certreq -q -enroll TestLabEnrollmentAgent)
 
 #endregion

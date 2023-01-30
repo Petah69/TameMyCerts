@@ -5,7 +5,7 @@ BeforeAll {
     $CertificateTemplate = "User_Offline_SubjectDN"
 }
 
-Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
+Describe 'User_Offline_SubjectDN.Tests' {
 
     It 'Given a Subject RDN from DS mapping is enabled and not all attributes are populated, a certificate with desired content is issued' {
 
@@ -14,7 +14,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result.Certificate.Subject | Should -Be "CN=testuser2@tamemycerts-tests.local"
+        $Result.Certificate.Subject | Should -Match "CN=testuser2@tamemycerts-tests.local"
     }
 
 }

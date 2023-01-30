@@ -14,7 +14,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
 
         $Result.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result.Certificate.Subject | Should -Be "E=v-mail, CN=v-displayName, OU=v-department, O=v-company, L=v-l, S=v-st, C=DE"
+        $Result.Certificate.Subject | Should -Match "E=v-mail, CN=v-displayName, OU=v-department, O=v-company, L=v-l, S=v-st, C=DE"
     }
 
     It 'Given a Subject RDN from DS mapping is enabled and not all mandatory attributes are populated, no certificate is issued' {
@@ -40,7 +40,7 @@ Describe 'User_Offline_SubjectDN_Mandatory.Tests' {
         $Result1.StatusCodeInt | Should -Be $WinError.CERTSRV_E_TEMPLATE_DENIED
         $Result2.Disposition | Should -Be $CertCli.CR_DISP_ISSUED
         $Result2.StatusCodeInt | Should -Be $WinError.ERROR_SUCCESS
-        $Result2.Certificate.Subject | Should -Be "CN=TestUser2"
+        $Result2.Certificate.Subject | Should -Match "CN=TestUser2"
     }
 
 }
