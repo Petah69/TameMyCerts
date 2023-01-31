@@ -326,7 +326,9 @@ ForEach ($TemplateName in $Templates) {
 
 Write-Host "Requesting Enrollment Agent certificate"
 
-& certreq -q -enroll TestLabEnrollmentAgent
+[void](& certutil -user -pulse)
+Start-Sleep -Seconds 5
+[void](& certreq -q -enroll TestLabEnrollmentAgent)
 
 #endregion
 
